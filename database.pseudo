@@ -1,0 +1,20 @@
+"""
+class which represents the database subsystem
+"""
+class Database:
+    Database(database, table):
+        connection = connect to database
+        if connection is None:
+            raise exception
+        init database if not exist
+        init table if not exist
+
+    getCurrency(base: str) -> dict | None:
+        # query the table will either return a dict or the None if it doesnt exist
+        currency = querry table for currency
+        return currency
+
+    updateCurrency(dict) -> None:
+        # used as an insert or update into the database
+        # update existing entries, inserts new ones
+        table.update_one( dict with upsert=True and union with '$set' )
