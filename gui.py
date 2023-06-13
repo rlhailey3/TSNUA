@@ -15,16 +15,21 @@ class CurrencyConverter(tk.Tk):
     def getinputQuantity():
         '''function that takes input'''
         return inputQuantity.get(1.0, "end-1c")
-
+    def receiveConversion():
+        ''' receives conversion object results'''
+        outputBox.insert()
 
     def output(input):
         '''function that displays output'''
         outputBox.insert(END, input)
 
     def convert():
+        outputBox.delete(1.0,"end-1c")
         inp = getinputQuantity()
+        inp = inp + " " + selected_from.get()
         output(inp)
-
+        # rate is none
+        #result is none
 
     self.title('Currency Converter')
     self.geometry('700x700')
@@ -71,7 +76,7 @@ class CurrencyConverter(tk.Tk):
                         width = 25, bg="light yellow")
     outputBox.place(x=450, y=40)
 
-    #submit button
+    #submit buttoncreate a
     button = tk.Button(self, text='Submit', width=25,command=convert)
     button.pack(side=tk.BOTTOM)
 
@@ -98,7 +103,9 @@ class CurrencyConverter(tk.Tk):
     selected_to.set( "EURO" )
     to_drop = OptionMenu(self, selected_to, *options)
     to_drop.place(x=120,y=80)
-
+#end of init
 if __name__ == "__main__":
   app = CurrencyConverter()
   app.mainloop()
+#end of Class
+#end of program
