@@ -1,0 +1,14 @@
+"""
+class representing the api subsystem
+"""
+class Api:
+    Api(api key)
+       save api key
+
+    getCurrencyList() -> list | None:
+        rest request to api endpoint for currency list
+        return list, or none if invalid API key
+
+    getCurrency(base: str) -> dict | None:
+        rest request to api endpoint for currency info
+        return dict or none if invalid
