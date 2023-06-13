@@ -1,0 +1,83 @@
+"""
+structure representing a currency conversion, initial values
+will be collected from the GUI and then filled out as it is
+passed out through the rest of the subsystems
+"""
+class Conversion:
+    base: str
+    new: str
+    base_value: float
+    rate: float | None
+    results: float | None = None
+
+
+"""
+structure representing a currency rate, retrieved from either the 
+cache database or the currency rates API
+"""
+class Currency:
+    base: str
+    conversion_rates: dict[str, float]
+    timestame: datetime.datetime
+    valid: bool
+
+"""
+class representing the core logic subsystem
+"""
+class Core:
+    """
+    constructor initializes the main logic subsystem
+    """
+    Core():
+        read api key from file:
+            initalize api subsystem
+
+        initialize databse subsystem
+        initialize gui subsystem
+        
+    run() -> None:
+        # Start Main logic loop!
+        while True:
+            conversion = getInput()
+            currency = getCurrency(conversion)
+            if currency is None:
+                gui.UpdateGui(ERROR)
+                continue
+            # set the conversion rate from the queried currency
+            conversion.rate = currency.conversion_rates[conversion.new]
+            conversion.results = convert(conversion)
+            updateGui(conversion)
+
+    
+    getInput() -> conversion:
+        """
+        retrieve input from gui subsystem to build conversion object
+        """
+        base = gui.getBase()
+        new = gui.getNew()
+        value = gui.getBaseValue()
+
+        conversion = Conversion(base, new, value)
+        return conversion
+
+    getCurrency(conversion) -> currency:
+        """
+        query database and/or api subsystem for requested currency
+        information
+        """
+        currency = database.getCurrency(conversion)
+        if currency is None:
+            # database did not contain currency info, query api
+            currency = api.getCurrency(conversion)
+            if currency is not None:
+                database.updateCurrency(currency)
+
+        return currency
+
+    convert(currency) -> float:
+        return currency.rate * currency.base_value
+
+    updateGui(ERROR | conversion):
+        if ERROR:
+            gui.writeOut(ERROR)
+        gui.writeOut(conversion)
