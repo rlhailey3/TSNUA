@@ -18,7 +18,9 @@ class CurrencyConverter(tk.Tk):
     def receiveConversion():
         ''' receives conversion object results'''
         outputBox.insert()
-
+    #def sanitizeInput(input):
+        #'''Sanitizes input'''
+        
     def output(input):
         '''function that displays output'''
         outputBox.insert(END, input)
@@ -44,8 +46,8 @@ class CurrencyConverter(tk.Tk):
     labelInputQuantity = ttk.Label(self, text='Input Quantity')
     labelInputQuantity.place(x= 20, y=210)
 
-    labelAPIKey = ttk.Label(self, text='API Key Input')
-    labelAPIKey.place(x=20, y=300)
+    #labelAPIKey = ttk.Label(self, text='API Key Input')
+    #labelAPIKey.place(x=20, y=300)
 
     labelOutput = ttk.Label(self, text='Output')
     labelOutput.place(x=525, y=20)
@@ -65,10 +67,10 @@ class CurrencyConverter(tk.Tk):
     inputQuantity.place(x= 120,y=210)
 
 
-    apiKeyTextBox = tk.Text(self,
-                            height =5,
-                            width = 20)
-    apiKeyTextBox.place(x=120,y=300)
+    #apiKeyTextBox = tk.Text(self,
+    #                        height =5,
+    #                        width = 20)
+    #apiKeyTextBox.place(x=120,y=300)
 
 
     outputBox = tk.Text(self,
