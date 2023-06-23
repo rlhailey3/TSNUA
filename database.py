@@ -33,7 +33,7 @@ class Database:
             }
         """
 
-        find_filter = {"base": base}
+        find_filter = {"base_code": base}
         return self.collection.find_one(find_filter)
 
 
@@ -53,7 +53,7 @@ class Database:
             }
         """
 
-        update_filter = {"base": entry["base"]}
+        update_filter = {"base_code": entry["base_code"]}
         record = {"$set": entry}
         
         update = self.collection.update_one(update_filter, record, upsert=True)
