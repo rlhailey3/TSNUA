@@ -1,18 +1,17 @@
-import os
 import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from tkinter.messagebox import showinfo
-import pymongo
+
 import json
 from api import Api
 from database import Database
 
 
+import io
 import datetime
 from dataclasses import dataclass
-from dataclasses import asdict
 
 
 @dataclass
@@ -27,12 +26,12 @@ class Conversion:
 @dataclass
 class Currency:
     base: str
-    conversion_rates: dict[str: float]
+    conversion_rates: dict[str, float]
     timestamp: datetime.datetime
 
 
 class Core:
-    def __init__(self):
+    def __init__(self, logging: bool = False, cacheAge: datetime.timedelta = datetime.timedelta(days=1)):
         self.config = self.loadConfig()  # Load the configuration file
         self.api_key = self.config.get("API_KEY")
         if self.api_key is None:
@@ -44,61 +43,107 @@ class Core:
         self.database = Database()
         self.gui = CurrencyConverter(currency_list, self.run)
 
+        self.cacheAge = cacheAge
+        self.logfile: None | io.TextIOWrapper = None
+
+        if logging:
+            self.logfile = open("./logfile.txt", "w")
+            self.writeLog("Init: cache age set to {0}".format(str(cacheAge)))
+
+            
+
     def run(self):
+        self.writeLog("Start")
         conversion = self.getInput()
         if conversion is None:
-            self.updateGui("numeric input only")
+            self.updateGui("Error: Numeric input only in 'Input Quantity' Field")
+            self.writeLog("End")
             return
-            
 
         currency = self.getCurrency(conversion)
         if currency is None:
+            # TODO: return better error message to user
             self.updateGui("ERROR")
+            self.writeLog("End")
             return
         
         conversion.rate = currency.conversion_rates[conversion.new]
         if conversion.rate is None:
+            # TODO: return better error message to user
             self.updateGui("ERROR")
             return
+
         conversion.results = self.convert(conversion)
+        self.writeLog(f'Conversion: {conversion.base} {conversion.base_value} = {conversion.new} {conversion.results}')
+        self.writeLog("End")
         self.updateGui(f'Conversion: {conversion.base} {conversion.base_value} = {conversion.new} {conversion.results}')
 
+    def writeLog(self, log: str) -> None:
+        if self.logfile is not None:
+            timestamp = str(datetime.datetime.now())
+            entry = "{0} - {1}\n".format(timestamp, log)
+            self.logfile.write(entry)
+
+
     def getInput(self) -> Conversion | None:
+        self.writeLog("start getInput()")
         base = self.gui.selected_from.get()
         new = self.gui.selected_to.get()
         value = self.gui.getinputQuantity()
 
         if value is None:
+            self.writeLog("Invalid base_value input")
+            self.writeLog("end getInput()")
             return None
+
+        self.writeLog("base currency: {0}".format(base))
+        self.writeLog("new currency: {0}".format(new))
+        self.writeLog("base_value: {0}".format(str(value)))
         
+        self.writeLog("end getInput()")
         return Conversion(base, new, value)
 
-    def getCurrency(self, conversion) -> Currency:
+    def getCurrency(self, conversion) -> Currency | None:
+        self.writeLog("start getCurrency()")
         currency_data = self.database.getCurrency(conversion.base)
+        self.writeLog("cache database queried")
         update = False
 
         if currency_data is not None:
+            self.writeLog("cache entry found")
             old_time = datetime.datetime.fromisoformat(currency_data["timestamp"])
             now_time = datetime.datetime.now()
             delta = now_time - old_time
-            if delta > datetime.timedelta(days=1):
+            if delta > self.cacheAge:
+                self.writeLog("cache entry expired")
                 update = True
 
         if currency_data is None or update:
+            self.writeLog("query API")
             currency_data = self.api.getCurrency(conversion.base)
+            update = True
             
-        if update:
+        if update and currency_data is not None:
+            self.writeLog("updating cache entry")
             self.database.updateCurrency(
-                currency_data["base_code"],
-                currency_data["conversion_rates"],
-                str(datetime.datetime.now())
+                {
+                    "base_code": currency_data["base_code"],
+                    "conversion_rates": currency_data["conversion_rates"],
+                    "timestamp": str(datetime.datetime.now())
+                }
             )
 
+        if currency_data is None:
+            self.writeLog("no currency data found")
+            self.writeLog("End getCurrency()")
+            return None
+        
         currency = Currency(
             base=currency_data["base_code"],
             conversion_rates=currency_data["conversion_rates"],
             timestamp=datetime.datetime.now())
 
+        self.writeLog("End getCurrency()")
         return currency
 
     def convert(self, conversion):
@@ -174,19 +219,9 @@ class CurrencyConverter(tk.Tk):
 
 
 if __name__ == "__main__":
-    app = Core()
+    #app = Core()
+    #app.gui.mainloop()
+
+    app = Core(logging=True)
     app.gui.mainloop()
-
-    #app = CurrencyConverter()
-    #app.mainloop()
-
-
-
-
-
-
-
-
-
-
 
