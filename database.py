@@ -61,6 +61,5 @@ class Database:
         """
         update_filter = {"base_code": entry["base_code"]}
         record = {"$set": entry}
-        
         update = self.collection.update_one(update_filter, record, upsert=True)
         return update.acknowledged

@@ -65,13 +65,12 @@ class Core:
         currency = self.get_currency(conversion)
         if currency is None:
             # TODO: return better error message to user
-            self.update_gui("ERROR")
-            self.write_log("End")
+            self.update_gui("Check remaining API request credits")
+            self.write_log("API currency query failure")
             return
         conversion.rate = currency.conversion_rates[conversion.new]
         if conversion.rate is None:
-            # TODO: return better error message to user
-            self.update_gui("ERROR")
+            self.update_gui("Unable to find conversion between selected currencies")
             return
         conversion.results = self.convert(conversion)
         self.write_log(f'Conversion: {conversion.base} {conversion.base_value}'
@@ -256,5 +255,4 @@ if __name__ == "__main__":
     #app.gui.mainloop()
 
     app = Core(logging=True)
-    app.gui.mainloop()
-    
+    app.gui.mainloop() 

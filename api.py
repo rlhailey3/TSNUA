@@ -38,6 +38,7 @@ class Api:
         data = self.get(endpoint)
         if data is not None:
             return data["supported_codes"]
+        return None
 
     def get_currency(self, base: str) -> dict | None:
         """Retrieve the conversion rates for a specific currency
@@ -60,3 +61,4 @@ class Api:
         response = requests.get(endpoint)
         if response.ok:
             return response.json()
+        return None
