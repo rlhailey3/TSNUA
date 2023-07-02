@@ -1,6 +1,15 @@
+'''
+Database subsystem
+Group 2,
+Devin Spiker
+Richard Hailey
+David Lambert
+CMSC 495 6381
+'''
 import pymongo
 
 class Database:
+    '''class for database initialization and handling'''
     def __init__(self, host: str = "localhost", port: int = 27017,
                  db_name: str = "currencies", collection_name: str = "rates"):
 
@@ -15,7 +24,7 @@ class Database:
         """
         self.client.close()
 
-    def getCurrency(self, base: str) -> dict | None:
+    def get_currency(self, base: str) -> dict | None:
         """Given a base currency, return the conversion rates or None on failure
 
         Keyword arguments
@@ -32,12 +41,10 @@ class Database:
                 "timestamp": iso format str
             }
         """
-
         find_filter = {"base_code": base}
         return self.collection.find_one(find_filter)
 
-
-    def updateCurrency(self, entry: dict) -> bool:
+    def update_currency(self, entry: dict) -> bool:
         """Update, or insert if not found, a currencies conversion rates
         
         Keyword arguments:
@@ -52,7 +59,6 @@ class Database:
                 "timestamp": iso format str
             }
         """
-
         update_filter = {"base_code": entry["base_code"]}
         record = {"$set": entry}
         

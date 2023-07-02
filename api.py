@@ -1,3 +1,11 @@
+'''
+API subsystem
+Group 2,
+Devin Spiker
+Richard Hailey
+David Lambert
+CMSC 495 6381
+'''
 import requests
 
 class Api:
@@ -19,7 +27,7 @@ class Api:
         """
         self.api_key = api_key
 
-    def getCurrencyList(self) -> list[list] | None:
+    def get_currency_list(self) -> list[list] | None:
         """Query the api for all supported currencies
 
         return list[list] (or none on failure) of the available currencies
@@ -31,7 +39,7 @@ class Api:
         if data is not None:
             return data["supported_codes"]
 
-    def getCurrency(self, base: str) -> dict | None:
+    def get_currency(self, base: str) -> dict | None:
         """Retrieve the conversion rates for a specific currency
 
         Keyword arguments:
