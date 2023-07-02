@@ -6,6 +6,8 @@ from tkinter import ttk
 from tkinter import *
 from tkinter.messagebox import showinfo
 from dataclasses import dataclass
+import re
+
 
 
 
@@ -16,15 +18,24 @@ class CurrencyConverter(tk.Tk):
     def getinputQuantity():
         '''function that takes input'''
         return inputQuantity.get(1.0, "end-1c")
+
     def receiveConversion():
         ''' receives conversion object results'''
         outputBox.insert()
-    #def sanitizeInput(input):
-        #'''Sanitizes input'''
-        
+
+    def sanitizeInput(input):
+        '''Sanitizes input'''
+        pattern = '[a-zA-z]'
+        if re.match(pattern, input) == True:
+            outputBox.insert(END, "Invalid characters in input field")
+
     def output(input):
         '''function that displays output'''
-        outputBox.insert(END, input)
+        pattern = '[a-zA-z]'
+        if re.match(pattern, input) == True:
+            outputBox.insert(END, "Invalid characters in input field")
+        else: 
+            outputBox.insert(END, input)
 
     def convert():
         outputBox.delete(1.0,"end-1c")

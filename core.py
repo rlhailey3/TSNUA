@@ -65,7 +65,7 @@ class Core:
         conversion.result = conversion.base_value * conversion.rate
 
     def updateGui(self, conversion):
-        self.gui.(conversion.result)
+        self.gui(conversion.result)
 
     def getInput(self) -> Conversion | None:
         conversion = Conversion(
