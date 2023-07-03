@@ -162,3 +162,4 @@ class Core:
 if __name__ == "__main__":
     app = Core()
     app.gui.mainloop()
+#end of class
