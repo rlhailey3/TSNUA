@@ -14,8 +14,8 @@ class Database:
                  db_name: str = "currencies", collection_name: str = "rates"):
 
         self.client = pymongo.MongoClient(host=host, port=port)
-        self.db = self.client[db_name]
-        self.collection = self.db[collection_name]
+        self.database = self.client[db_name]
+        self.collection = self.database[collection_name]
 
     def close(self):
         """Close the underlying pymongo MongoClient
@@ -61,6 +61,5 @@ class Database:
         """
         update_filter = {"base_code": entry["base_code"]}
         record = {"$set": entry}
-        
         update = self.collection.update_one(update_filter, record, upsert=True)
         return update.acknowledged

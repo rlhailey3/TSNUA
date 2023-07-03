@@ -11,9 +11,10 @@ import datetime
 import tkinter as tk
 from tkinter import ttk
 import json
+
+import io
 from dataclasses import dataclass
 from database import Database
-from dataclasses import asdict
 from api import Api
 
 @dataclass
@@ -34,22 +35,25 @@ class Currency:
 
 class Core:
     '''Core class which houses primary software components'''
-    def __init__(self, logging: bool = False, cache_age: datetime.timedelta = datetime.timedelta(days=1)):
+    def __init__(self, logging: bool = False,
+                  cache_age: datetime.timedelta = datetime.timedelta(days=1)):
+        self.cache_age = cache_age
+        self.logging: bool = logging
+        if self.logging:
+            self.write_log(f"Init: cache age set to {str(cache_age)}")
+
         self.config = self.load_config()  # Load the configuration file
         self.api_key = self.config.get("API_KEY")
         if self.api_key is None:
-            raise Exception("API_KEY not found in the configuration file.")
+            print("API_KEY not found in the configuration file.")
+            self.write_log("API_KEY not found in the configuration file.")
         self.api = Api(self.api_key)
         currency_list = self.api.get_currency_list()
         if currency_list is None:
-            raise Exception("Failed to reach api endpoint, check API_Key or network connections")
+            print("Failed to reach api endpoint, check API_Key or network connections")
+            self.write_log("Failed to reach api endpoint, check API_Key or network connections")
         self.database = Database()
         self.gui = CurrencyConverter(currency_list, self.run)
-        self.cache_age = cache_age
-        self.logfile: None | io.TextIOWrapper = None#specifiy encoding, where is io being defined?
-        if logging:
-            self.logfile = open("./logfile.txt", "w")# consider using with open("./logfile.txt", "w") as self.logfile
-            self.write_log("Init: cache age set to {0}".format(str(cache_age)))
 
     def run(self):
         '''Redefining the run function for our programs purposes'''
@@ -61,25 +65,27 @@ class Core:
         currency = self.get_currency(conversion)
         if currency is None:
             # TODO: return better error message to user
-            self.update_gui("ERROR")
-            self.write_log("End")
+            self.update_gui("Check remaining API request credits")
+            self.write_log("API currency query failure")
             return
         conversion.rate = currency.conversion_rates[conversion.new]
         if conversion.rate is None:
-            # TODO: return better error message to user
-            self.update_gui("ERROR")
+            self.update_gui("Unable to find conversion between selected currencies")
             return
         conversion.results = self.convert(conversion)
-        self.write_log(f'Conversion: {conversion.base} {conversion.base_value} = {conversion.new} {conversion.results}')#line too long
+        self.write_log(f'Conversion: {conversion.base} {conversion.base_value}'
+            + f'= {conversion.new} {conversion.results}')#line too long
         self.write_log("End")
-        self.update_gui(f'Conversion: {conversion.base} {conversion.base_value} = {conversion.new} {conversion.results}')
+        self.update_gui(f'Conversion: {conversion.base} {conversion.base_value}'
+            + f'= {conversion.new} {conversion.results}')
 
     def write_log(self, log: str) -> None:
         '''Function that enables logging'''
-        if self.logfile is not None:
-            timestamp = str(datetime.datetime.now())
-            entry = "{0} - {1}\n".format(timestamp, log)#consider user f-string
-            self.logfile.write(entry)
+        if self.logging:
+            with open("./logfile.txt", "a+", encoding="utf8") as logfile:
+                timestamp = str(datetime.datetime.now())
+                entry = f"{timestamp} - {log}\n"
+                logfile.write(entry)
 
     def get_input(self) -> Conversion | None:
         '''function for obtaining input from user'''
@@ -91,9 +97,9 @@ class Core:
             self.write_log("Invalid base_value input")
             self.write_log("end get_input()")
             return None
-        self.write_log("base currency: {0}".format(base))
-        self.write_log("new currency: {0}".format(new))
-        self.write_log("base_value: {0}".format(str(value))) 
+        self.write_log(f"base currency: {base}")
+        self.write_log(f"new currency: {new}")
+        self.write_log(f"base_value: {str(value)}")
         self.write_log("end get_input()")
         return Conversion(base, new, value)
 
@@ -117,7 +123,7 @@ class Core:
             update = True
         if update and currency_data is not None:
             self.write_log("updating cache entry")
-            self.database.updateCurrency(
+            self.database.update_currency(
                 {
                     "base_code": currency_data["base_code"],
                     "conversion_rates": currency_data["conversion_rates"],
@@ -166,17 +172,17 @@ class CurrencyConverter(tk.Tk):
         codes = [x[0] for x in currency_list]
 
         frame_input = ttk.Frame(self, padding=10)
-        frame_input.pack(side=TOP, padx=50, pady=20)
+        frame_input.pack(side="top", padx=50, pady=20)
 
         frame_convert = ttk.Frame(self, padding=10)
-        frame_convert.pack(side=TOP, padx=50, pady=20)
+        frame_convert.pack(side="top", padx=50, pady=20)
 
         self.label_input_quantity = ttk.Label(
             frame_input,
              text='Input Quantity',
               background='black',
                foreground='gold')
-        self.label_input_quantity.pack(side=LEFT, padx=5, pady=5)
+        self.label_input_quantity.pack(side="left", padx=5, pady=5)
 
         self.input_quantity = tk.Text(
             frame_input,
@@ -185,29 +191,29 @@ class CurrencyConverter(tk.Tk):
                font=("Arial", 14),
                 bg='red',
                  fg='gold')
-        self.input_quantity.pack(side=LEFT, padx=5, pady=5)
+        self.input_quantity.pack(side="left", padx=5, pady=5)
 
         self.label_convert_from = ttk.Label(
             frame_convert,
              text='Convert From',
               background='black',
                foreground='gold')
-        self.label_convert_from.pack(side=LEFT, padx=5, pady=5)
+        self.label_convert_from.pack(side="left", padx=5, pady=5)
 
         self.selected_from = ttk.Combobox(frame_convert,state="readonly", values=codes)
         self.selected_from.set("USD")
-        self.selected_from.pack(side=LEFT, padx=5, pady=5)
+        self.selected_from.pack(side="left", padx=5, pady=5)
 
         self.label_convert_to = ttk.Label(
             frame_convert,
              text='Convert To',
               background='black',
                foreground='gold')
-        self.label_convert_to.pack(side=LEFT, padx=5, pady=5)
+        self.label_convert_to.pack(side="left", padx=5, pady=5)
 
         self.selected_to = ttk.Combobox(frame_convert,state="readonly", values=codes)
         self.selected_to.set("EUR")
-        self.selected_to.pack(side=LEFT, padx=5, pady=5)
+        self.selected_to.pack(side="left", padx=5, pady=5)
 
         self.button = tk.Button(
             self,
@@ -215,7 +221,7 @@ class CurrencyConverter(tk.Tk):
               width=25,
                font=("Arial", 14),
                 command=submit_function, bg='red', fg='gold')
-        self.button.pack(side=BOTTOM, padx=50, pady=20)
+        self.button.pack(side="bottom", padx=50, pady=20)
 
         self.output_box = tk.Text(
             self,
@@ -224,28 +230,29 @@ class CurrencyConverter(tk.Tk):
                font=("Arial", 14),
                 bg='red',
                  fg='gold',
-                  state="readonly"
+                  state="disabled"
             )
-        self.output_box.pack(side=BOTTOM, padx=50, pady=20)
+        self.output_box.pack(side="bottom", padx=50, pady=20)
 
     def getinput_quantity(self) -> float | None:
-       '''Function for obtaining the input quantity from the GUI'''
-       input_quanitity = self.input_quantity.get(1.0, "end-1c")
-       try:
-            input_quanitity = float(input)
-       except:
+        '''Function for obtaining the input quantity from the GUI'''
+        input_quantity = self.input_quantity.get(1.0, "end-1c")
+        try:
+            input_quantity = float(input_quantity)
+        except ValueError:
             return None
-       return input_quantity
+        return input_quantity
 
     def output(self, user_input):
         '''function to display outout to GUI/user'''
+        self.output_box.config(state='normal')
         self.output_box.delete(1.0, "end")
         self.output_box.insert(tk.END, user_input)
+        self.output_box.config(state='disabled')
 
 if __name__ == "__main__":
     #app = Core()
     #app.gui.mainloop()
 
     app = Core(logging=True)
-    app.gui.mainloop()
-
+    app.gui.mainloop() 
