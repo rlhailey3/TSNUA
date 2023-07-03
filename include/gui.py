@@ -1,3 +1,11 @@
+'''
+GUI subsystem
+Group 2,
+Devin Spiker
+Richard Hailey
+David Lambert
+CMSC 495 6381
+'''
 import tkinter as tk
 from tkinter import ttk
 
@@ -10,27 +18,21 @@ class Gui(tk.Tk):
         self.title('Currency Converter')
         self.geometry('700x700')
         self.config(background='black')
-
         self.label = ttk.Label(
             self, text='Currency Converter', background='black', foreground='gold'
             )
         self.label.pack()
-
         codes = [x[0] for x in currency_list]
-
         frame_input = ttk.Frame(self, padding=10)
         frame_input.pack(side="top", padx=50, pady=20)
-
         frame_convert = ttk.Frame(self, padding=10)
         frame_convert.pack(side="top", padx=50, pady=20)
-
         self.label_input_quantity = ttk.Label(
             frame_input,
              text='Input Quantity',
               background='black',
                foreground='gold')
         self.label_input_quantity.pack(side="left", padx=5, pady=5)
-
         self.input_quantity = tk.Text(
             frame_input,
              height=1,
@@ -39,29 +41,24 @@ class Gui(tk.Tk):
                 bg='red',
                  fg='gold')
         self.input_quantity.pack(side="left", padx=5, pady=5)
-
         self.label_convert_from = ttk.Label(
             frame_convert,
              text='Convert From',
               background='black',
                foreground='gold')
         self.label_convert_from.pack(side="left", padx=5, pady=5)
-
         self.selected_from = ttk.Combobox(frame_convert,state="readonly", values=codes)
         self.selected_from.set("USD")
         self.selected_from.pack(side="left", padx=5, pady=5)
-
         self.label_convert_to = ttk.Label(
             frame_convert,
              text='Convert To',
               background='black',
                foreground='gold')
         self.label_convert_to.pack(side="left", padx=5, pady=5)
-
         self.selected_to = ttk.Combobox(frame_convert,state="readonly", values=codes)
         self.selected_to.set("EUR")
         self.selected_to.pack(side="left", padx=5, pady=5)
-
         self.button = tk.Button(
             self,
              text='Submit',
@@ -69,7 +66,6 @@ class Gui(tk.Tk):
                font=("Arial", 14),
                 command=submit_function, bg='red', fg='gold')
         self.button.pack(side="bottom", padx=50, pady=20)
-
         self.output_box = tk.Text(
             self,
              height=1,
@@ -96,4 +92,4 @@ class Gui(tk.Tk):
         self.output_box.delete(1.0, "end")
         self.output_box.insert(tk.END, user_input)
         self.output_box.config(state='disabled')
-
+#end of class
