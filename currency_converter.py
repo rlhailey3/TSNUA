@@ -8,7 +8,6 @@ CMSC 495 6381
 '''
 import datetime
 import json
-
 from dataclasses import dataclass
 from include.database import Database
 from include.api import Api
@@ -37,21 +36,17 @@ class Core:
         api_key = config["API_KEY"]
         mongo_host: str = config["mongo"]["host"]
         mongo_port: int = config["mongo"]["port"]
-
         d_days = config["cache"]["days"]
         d_hours = config["cache"]["hours"]
         d_minutes = config["cache"]["minutes"]
         d_seconds = config["cache"]["seconds"]
-
         self.cache_age = datetime.timedelta(
                 days=d_days,
                 hours=d_hours,
                 minutes=d_minutes,
                 seconds=d_seconds)
-
         self.logging: bool = config["logging"]
         self.write_log(f"Init: cache age set to {str(self.cache_age)}")
-
         if api_key is None:
             print("API_KEY not found in the configuration file.")
             self.write_log("API_KEY not found in the configuration file.")
@@ -164,8 +159,6 @@ class Core:
         with open("config.json",encoding="utf8") as config_file:
             return json.load(config_file)
 
-
 if __name__ == "__main__":
     app = Core()
     app.gui.mainloop()
-
