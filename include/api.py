@@ -62,3 +62,4 @@ class Api:
         if response.ok:
             return response.json()
         return None
+#end of class
