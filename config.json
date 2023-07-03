@@ -1,3 +1,14 @@
 {
-  "API_KEY": "ae066f3bc7b57d9beb69848c"
+  "API_KEY": "ae066f3bc7b57d9beb69848c",
+  "mongo": {
+      "host": "localhost",
+      "port": 27017
+  },
+  "cache": {
+      "days": 1,
+      "hours": 0,
+      "minutes": 0,
+      "seconds": 0
+  },
+  "logging": true
 }
