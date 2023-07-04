@@ -63,3 +63,4 @@ class Database:
         record = {"$set": entry}
         update = self.collection.update_one(update_filter, record, upsert=True)
         return update.acknowledged
+#end of class
