@@ -58,7 +58,7 @@ class Api:
         Keyword arguments:
         endpoint -- the formatted api endpoint
         """
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, timeout=10)
         if response.ok:
             return response.json()
         return None
