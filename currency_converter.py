@@ -121,6 +121,8 @@ class Core:
             old_time = datetime.datetime.fromisoformat(currency_data["timestamp"])
             now_time = datetime.datetime.now()
             delta = now_time - old_time
+            self.write_log(f"cache timestamp: {currency_data['timestamp']}")
+            self.write_log(f"cache age: {str(delta)}")
             if delta > self.cache_age:
                 self.write_log("cache entry expired")
                 update = True
