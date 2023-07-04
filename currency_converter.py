@@ -78,6 +78,7 @@ class Core:
         if conversion.rate is None:
             self.update_gui("Unable to find conversion between selected currencies")
             return
+        self.write_log(f'Conversion rate: {conversion.rate}')
         conversion.results = self.convert(conversion)
         self.write_log(f'Conversion: {conversion.base} {conversion.base_value}'
             + f'= {conversion.new} {conversion.results}')#line too long
