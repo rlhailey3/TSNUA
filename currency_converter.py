@@ -50,12 +50,13 @@ class Core:
         if api_key is None:
             print("API_KEY not found in the configuration file.")
             self.write_log("API_KEY not found in the configuration file.")
+            exit(1)
         self.api = Api(api_key)
         currency_list = self.api.get_currency_list()
         if currency_list is None:
             print("Failed to reach api endpoint, check API_Key or network connections")
             self.write_log("Failed to reach api endpoint, check API_Key or network connections")
-            return
+            exit(1)
         self.database = Database(host=mongo_host, port=mongo_port)
         self.gui = Gui(currency_list, self.run)
 
